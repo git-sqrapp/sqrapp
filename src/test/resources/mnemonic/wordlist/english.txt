@@ -432,7 +432,7 @@ cupboard
 curious
 current
 curtain
-curve
+CURVE_PARAMS
 cushion
 custom
 cute
