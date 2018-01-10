@@ -31,48 +31,61 @@ public class LitecoinTest {
 
     @Test
     public void testWIF() throws ValidationException {
-        String privateKeyHex = "0C28FCA386C7A227600B2FE50B7CAE11EC86D3BF1FBE471BE89827E19D72AA1D";
-        String privateKeyWif = "5HueCGU8rMjxEXxiPuD5BDku4MkFqeZyd4dZ1jvhTVqvbTLvyTJ";
+        String[][] hexAndWifPair = {
+                {
+                        "CFD43DA53975E6738CF92AAE3250C734C9A6AFABF91B17211F9B0748397017DE",
+                        "6vhYmFj2W36D4gkQicKbAF7kb2A2vx9h969UQ9GNL8JxnnoUr3k"
+                }
+        };
 
-        BigInteger privateKey = new BigInteger(privateKeyHex, 16);
-        String computedWif = litecoin.serializeWIF(keyGenerator.createECKeyPair(privateKey));
-        System.out.println(computedWif);
-        assertEquals(privateKeyWif, computedWif);
+        for(int i=0; i< hexAndWifPair.length; i++) {
+            String privateKeyHex = hexAndWifPair[i][0];
+            String privateKeyWif = hexAndWifPair[i][1];
 
-        KeyGenerator.ECKeyPair keyPair = litecoin.parseWIF(privateKeyWif);
-        BigInteger privateKeyFromWif = keyPair.getPrivateKey();
-        assertEquals(privateKey, privateKeyFromWif);
+            BigInteger privateKey = new BigInteger(privateKeyHex, 16);
+            String computedWif = litecoin.serializeWIF(keyGenerator.createECKeyPair(privateKey));
+            //System.out.println(computedWif);
+            assertEquals(privateKeyWif, computedWif);
+
+            KeyGenerator.ECKeyPair keyPair = litecoin.parseWIF(privateKeyWif);
+            BigInteger privateKeyFromWif = keyPair.getPrivateKey();
+            assertEquals(privateKey, privateKeyFromWif);
+        }
     }
 
     @Test
-    public void testAddress() throws ValidationException {
-
-        //String privateWif = "6vUDCKH8RHwwuopZsHzQoVrB6fvognoxvyJqMVRgRrKg1P7KLQL";
+    public void testAddressSample1() throws ValidationException {
         String privateWif = "T916pwgBkDoXN5ex4yzQ4EL3a2pV4dCHsDXiRSTw2ghRAU1dcYXQ";
-
         String privateHex = "B18B7FBCB0E0CD61B86F4E93CB2A7F1721ABF32A84B7AE005ADC6BC0732014A5";
-        String address1 = "LexZepkU7eTDDVoLyhwxSuxVEnqWoHmydS";
+        BigInteger privateKey = new BigInteger(privateHex, 16);
+
+        String addressUncompressed = "LexZepkU7eTDDVoLyhwxSuxVEnqWoHmydS";
         String addressCompressed = "LVccEefoPy6jXvFRVkDR38EC4SZu79y82h";
 
-        BigInteger privateKey = new BigInteger(privateHex, 16);
-        System.out.println("length:"+privateKey.toByteArray().length);
-        KeyGenerator.ECKeyPair keyPair = keyGenerator.createECKeyPair(privateKey, false);
-        System.out.println("hex0:"+keyPair.getPrivateKey().toString(16));
-        System.out.println("hex0:"+keyPair.getPublicKey().toString(16));
+        KeyGenerator.ECKeyPair keyPair0 = litecoin.parseWIF(privateWif);
+        KeyGenerator.ECKeyPair keyPair1 = keyGenerator.createECKeyPair(privateKey, true);
+        KeyGenerator.ECKeyPair keyPair2 = keyGenerator.createECKeyPair(privateKey, false);
 
-        KeyGenerator.ECKeyPair keyPair1 = litecoin.parseWIF(privateWif);
+        String addressFromWif = litecoin.address(keyPair0.getPublic());
+        String addressFromCompressedKey = litecoin.address(keyPair1.getPublic());
+        String addressFromUncompressedKey = litecoin.address(keyPair2.getPublic());
 
-        String hex = keyPair1.getPrivateKey().toString(16);
-        String hex2 = keyPair1.getPublicKey().toString(16);
-        System.out.println("hex2:"+hex);
-        System.out.println("hex2:"+hex2);
+        assertEquals(addressFromWif, addressCompressed);
+        assertEquals(addressFromCompressedKey, addressCompressed);
+        assertEquals(addressFromUncompressedKey, addressUncompressed);
+    }
+
+    @Test
+    public void testAddressSample2() throws ValidationException {
+        String address = "LfMRukcfihn4EsJK3iPx7NXKD6v6vcnhSb";
+        String privateKeyWif = "6vhYmFj2W36D4gkQicKbAF7kb2A2vx9h969UQ9GNL8JxnnoUr3k";
+
+        KeyGenerator.ECKeyPair keyPair = litecoin.parseWIF(privateKeyWif);
+        BigInteger privateKey = keyPair.getPrivateKey();
 
         byte[] pubBytes = keyPair.getPublic();
         String computedAddress = litecoin.address(pubBytes);
-        String computedAddress2 = litecoin.address(keyPair.getPublicKey().toString(16));
-        System.out.println(computedAddress);
-        System.out.println(computedAddress2);
-        assertEquals(address1, computedAddress);
+        assertEquals(address, computedAddress);
     }
 
 }

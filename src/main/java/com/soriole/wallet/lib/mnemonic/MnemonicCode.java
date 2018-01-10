@@ -98,7 +98,7 @@ public class MnemonicCode {
      */
     public static byte[] toSeed(List<String> words, String passphrase) {
 
-        // To createExtendedKey binary seed from mnemonic, we use PBKDF2 function
+        // To create binary seed from mnemonic, we use PBKDF2 function
         // with mnemonic sentence (in UTF-8) used as a password and
         // string "mnemonic" + passphrase (again in UTF-8) used as a
         // salt. Iteration count is set to 4096 and HMAC-SHA512 is
